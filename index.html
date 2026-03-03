@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MU 100 // MIDTERM PREP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090b;--surface:#111113;--surface2:#18181b;--surface3:#1e1e22;
+  --border:#27272a;--border-hi:#3f3f46;
+  --dim:#52525b;--text:#a1a1aa;--bright:#e4e4e7;--white:#fafafa;
+  --accent:#4ade80;--accent-dim:#166534;--error:#f87171;--error-dim:#7f1d1d;
+  --glow:rgba(74,222,128,0.08);--glow-strong:rgba(74,222,128,0.15);
+  --font:'JetBrains Mono','Fira Code','Consolas','Courier New',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  min-height:100vh;line-height:1.6;overflow-x:hidden;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+::selection{background:var(--accent);color:var(--bg)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--dim)}
+
+.scanline{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+}
+
+#app{max-width:960px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+
+/* HEADER */
+.header{
+  border-bottom:1px solid var(--border);padding-bottom:1rem;margin-bottom:1.5rem;
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;
+}
+.header h1{
+  font-size:1.4rem;font-weight:700;color:var(--white);letter-spacing:2px;
+}
+.header h1 span{color:var(--accent);font-weight:300}
+.header .sub{font-size:.7rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase}
+.stats{display:flex;gap:1.5rem;font-size:.7rem;color:var(--dim)}
+.stats b{color:var(--text)}
+
+/* NAV */
+.nav{
+  display:flex;gap:2px;margin-bottom:2rem;background:var(--surface);
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;
+}
+.nav button{
+  flex:1;padding:.7rem .5rem;background:transparent;border:none;
+  font-family:var(--font);font-size:.75rem;color:var(--dim);cursor:pointer;
+  letter-spacing:1.5px;text-transform:uppercase;transition:all .2s;position:relative;
+}
+.nav button:hover{color:var(--text);background:var(--surface2)}
+.nav button.active{color:var(--accent);background:var(--surface2)}
+.nav button.active::after{
+  content:'';position:absolute;bottom:0;left:10%;width:80%;height:2px;
+  background:var(--accent);box-shadow:0 0 8px var(--glow-strong);
+}
+
+/* CARDS */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  margin-bottom:.75rem;overflow:hidden;transition:border-color .2s;
+}
+.card:hover{border-color:var(--border-hi)}
+.card-head{
+  padding:1rem 1.25rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  user-select:none;transition:background .2s;
+}
+.card-head:hover{background:var(--surface2)}
+.card-head h2{font-size:.85rem;font-weight:500;color:var(--bright);letter-spacing:1px}
+.card-head .period{font-size:.7rem;color:var(--dim);letter-spacing:2px}
+.card-head .arrow{color:var(--dim);transition:transform .3s var(--ease);font-size:.8rem}
+.card.open .card-head .arrow{transform:rotate(90deg)}
+.card-body{
+  max-height:0;overflow:hidden;transition:max-height .5s var(--ease);
+}
+.card.open .card-body{max-height:5000px}
+.card-content{padding:0 1.25rem 1.25rem;border-top:1px solid var(--border)}
+.card-content h3{
+  font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:2px;
+  text-transform:uppercase;margin:1.25rem 0 .6rem;
+}
+.card-content h3:first-child{margin-top:.75rem}
+.card-content p{font-size:.82rem;margin-bottom:.5rem;color:var(--text)}
+.card-content ul{list-style:none;padding:0}
+.card-content li{
+  font-size:.82rem;padding:.3rem 0 .3rem 1rem;position:relative;color:var(--text);
+}
+.card-content li::before{
+  content:'>';position:absolute;left:0;color:var(--dim);font-weight:700;
+}
+.composer{
+  padding:.6rem .8rem;background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;margin-bottom:.5rem;
+}
+.composer .name{font-size:.8rem;font-weight:600;color:var(--bright)}
+.composer .desc{font-size:.78rem;color:var(--text);margin-top:.2rem}
+
+/* FLASHCARDS */
+.fc-container{text-align:center}
+.fc-progress{font-size:.7rem;color:var(--dim);letter-spacing:2px;margin-bottom:1rem}
+.fc-progress b{color:var(--text)}
+.fc-bar{
+  height:3px;background:var(--surface2);border-radius:2px;margin-bottom:1.5rem;overflow:hidden;
+}
+.fc-bar-fill{height:100%;background:var(--accent);transition:width .4s var(--ease);border-radius:2px}
+.fc-card-wrap{perspective:800px;margin:0 auto 1.5rem;max-width:560px;height:260px;cursor:pointer}
+.fc-card{
+  width:100%;height:100%;position:relative;transform-style:preserve-3d;
+  transition:transform .5s var(--ease);
+}
+.fc-card.flipped{transform:rotateY(180deg)}
+.fc-face{
+  position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;text-align:center;
+}
+.fc-face.back{transform:rotateY(180deg);background:var(--surface2);border-color:var(--accent-dim)}
+.fc-label{
+  font-size:.6rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:.75rem;
+}
+.fc-text{font-size:.9rem;color:var(--bright);line-height:1.7}
+.fc-back-text{font-size:.85rem;color:var(--text);line-height:1.7}
+.fc-hint{font-size:.65rem;color:var(--dim);margin-top:auto;letter-spacing:1px}
+.fc-controls{display:flex;gap:.75rem;justify-content:center;align-items:center;flex-wrap:wrap}
+.fc-btn{
+  padding:.6rem 1.2rem;background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;font-family:var(--font);font-size:.75rem;color:var(--text);
+  cursor:pointer;letter-spacing:1px;transition:all .15s;
+}
+.fc-btn:hover{border-color:var(--border-hi);color:var(--bright);background:var(--surface3)}
+.fc-btn.accent{border-color:var(--accent-dim);color:var(--accent)}
+.fc-btn.accent:hover{background:var(--accent-dim);border-color:var(--accent)}
+.fc-filter{
+  display:flex;gap:2px;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap;
+}
+.fc-filter button{
+  padding:.4rem .8rem;background:transparent;border:1px solid var(--border);
+  border-radius:3px;font-family:var(--font);font-size:.65rem;color:var(--dim);
+  cursor:pointer;letter-spacing:1px;transition:all .15s;
+}
+.fc-filter button:hover{color:var(--text);border-color:var(--border-hi)}
+.fc-filter button.active{color:var(--accent);border-color:var(--accent-dim);background:rgba(74,222,128,.05)}
+
+/* QUIZ */
+.quiz-intro{text-align:center;padding:3rem 1rem}
+.quiz-intro h2{font-size:1.1rem;color:var(--bright);margin-bottom:.5rem}
+.quiz-intro p{font-size:.82rem;color:var(--text);margin-bottom:1.5rem}
+.quiz-start-btn{
+  padding:.8rem 2rem;background:var(--accent-dim);border:1px solid var(--accent);
+  border-radius:4px;font-family:var(--font);font-size:.82rem;color:var(--accent);
+  cursor:pointer;letter-spacing:1px;transition:all .15s;
+}
+.quiz-start-btn:hover{background:var(--accent);color:var(--bg)}
+.quiz-q{margin-bottom:2rem}
+.quiz-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.7rem;color:var(--dim);letter-spacing:1px;margin-bottom:.75rem;
+}
+.quiz-meta .era-tag{
+  padding:.15rem .5rem;background:var(--surface2);border:1px solid var(--border);
+  border-radius:2px;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;
+}
+.quiz-question{font-size:.92rem;color:var(--bright);margin-bottom:1.25rem;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem}
+.quiz-opt{
+  padding:.75rem 1rem;background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;font-family:var(--font);font-size:.82rem;color:var(--text);
+  cursor:pointer;text-align:left;transition:all .15s;display:flex;gap:.75rem;
+}
+.quiz-opt:hover:not(.locked){border-color:var(--border-hi);color:var(--bright);background:var(--surface2)}
+.quiz-opt .key{
+  color:var(--dim);font-weight:700;flex-shrink:0;width:1.2rem;
+}
+.quiz-opt.correct{border-color:var(--accent);background:rgba(74,222,128,.08);color:var(--accent)}
+.quiz-opt.wrong{border-color:var(--error);background:rgba(248,113,113,.08);color:var(--error)}
+.quiz-opt.locked{cursor:default}
+.quiz-next{
+  margin-top:1.5rem;text-align:right;
+}
+.quiz-next button{
+  padding:.6rem 1.5rem;background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;font-family:var(--font);font-size:.75rem;color:var(--text);
+  cursor:pointer;letter-spacing:1px;transition:all .15s;
+}
+.quiz-next button:hover{border-color:var(--border-hi);color:var(--bright)}
+.quiz-result{text-align:center;padding:2rem 1rem}
+.quiz-result h2{font-size:1.2rem;color:var(--bright);margin-bottom:.5rem}
+.quiz-score{font-size:2.5rem;font-weight:700;color:var(--accent);margin:1rem 0}
+.quiz-score.low{color:var(--error)}
+.quiz-score.mid{color:var(--text)}
+.quiz-breakdown{
+  display:flex;justify-content:center;gap:2rem;margin:1.5rem 0;
+  font-size:.8rem;color:var(--dim);
+}
+.quiz-breakdown b{display:block;font-size:1.1rem;margin-bottom:.2rem}
+.quiz-breakdown .right b{color:var(--accent)}
+.quiz-breakdown .wrong b{color:var(--error)}
+.quiz-review-list{text-align:left;margin:2rem 0}
+.quiz-review-item{
+  padding:.75rem 1rem;background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;margin-bottom:.5rem;font-size:.8rem;
+}
+.quiz-review-item .q{color:var(--bright);margin-bottom:.3rem}
+.quiz-review-item .your-ans{color:var(--error)}
+.quiz-review-item .correct-ans{color:var(--accent)}
+
+/* TIMELINE */
+.timeline-wrap{overflow-x:auto;padding:2rem 0}
+.timeline{
+  display:flex;position:relative;min-width:max-content;padding:0 2rem;
+}
+.timeline::before{
+  content:'';position:absolute;top:50%;left:0;right:0;height:2px;
+  background:var(--border);transform:translateY(-50%);
+}
+.tl-era{
+  flex-shrink:0;width:220px;padding:0 .5rem;position:relative;
+}
+.tl-era-label{
+  position:relative;background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:.6rem .8rem;text-align:center;z-index:2;
+  margin-bottom:.3rem;
+}
+.tl-era-label h3{font-size:.75rem;color:var(--bright);letter-spacing:1px;font-weight:600}
+.tl-era-label .dates{font-size:.6rem;color:var(--dim);letter-spacing:2px;margin-top:.15rem}
+.tl-dot{
+  width:10px;height:10px;background:var(--accent);border-radius:50%;
+  margin:0 auto .3rem;position:relative;z-index:2;
+  box-shadow:0 0 8px var(--glow-strong);
+}
+.tl-composers{font-size:.7rem;color:var(--dim);text-align:center;line-height:1.8}
+.tl-composers span{display:block;color:var(--text)}
+
+/* KEYBOARD HINTS */
+.kb-hints{
+  position:fixed;bottom:1rem;right:1rem;font-size:.6rem;color:var(--dim);
+  letter-spacing:1px;background:var(--surface);border:1px solid var(--border);
+  padding:.4rem .6rem;border-radius:3px;z-index:100;
+}
+.kb-hints kbd{
+  display:inline-block;padding:.1rem .35rem;background:var(--surface2);
+  border:1px solid var(--border);border-radius:2px;font-family:var(--font);
+  font-size:.58rem;color:var(--text);margin:0 .1rem;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s var(--ease) forwards;opacity:0}
+.fade-in:nth-child(1){animation-delay:.05s}
+.fade-in:nth-child(2){animation-delay:.1s}
+.fade-in:nth-child(3){animation-delay:.15s}
+.fade-in:nth-child(4){animation-delay:.2s}
+.fade-in:nth-child(5){animation-delay:.25s}
+
+@media(max-width:640px){
+  html{font-size:14px}
+  #app{padding:1rem}
+  .header{flex-direction:column;align-items:flex-start}
+  .fc-card-wrap{height:220px}
+  .tl-era{width:180px}
+}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div id="app"></div>
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+
+const REVIEW = [
+  {
+    id:'medieval', title:'THE MIDDLE AGES', period:'450 — 1450',
+    sections:[
+      {title:'SOCIO-POLITICAL CONTEXT', html:`
+        <p>Europe under the <b>feudal system</b> — rigid social hierarchy: king > nobles > knights > peasants. The <b>Catholic Church</b> was the most powerful institution, controlling education, art, and daily life. Nearly all literate people were clergy.</p>
+        <p>Most music existed to serve the Church. <b>Monasteries and cathedrals</b> were the centers of musical life. Secular music existed but was rarely written down.</p>
+      `},
+      {title:'KEY MUSICAL CONCEPTS', html:`
+        <ul>
+          <li><b>Gregorian Chant</b> — the official music of the Roman Catholic Church. Monophonic (single melody line), sung in Latin, a cappella (no instruments), with free rhythm (no regular beat). Named after <b>Pope Gregory I</b>.</li>
+          <li><b>Polyphony</b> — multiple independent melodic lines sounding simultaneously. The great innovation of this era.</li>
+          <li><b>Organum</b> — the earliest form of polyphony: a second voice added to an existing Gregorian chant melody.</li>
+          <li><b>Ars Nova</b> — "New Art" — a 14th-century movement featuring greater rhythmic complexity and new notation.</li>
+          <li><b>Mass Ordinary</b> — the five sections with fixed texts: <b>Kyrie, Gloria, Credo, Sanctus, Agnus Dei</b>.</li>
+        </ul>
+      `},
+      {title:'SECULAR MUSIC', html:`
+        <ul>
+          <li><b>Troubadours</b> — poet-musicians of <b>southern France</b>. Sang secular songs, often about courtly love, in Occitan.</li>
+          <li><b>Trouvères</b> — poet-musicians of <b>northern France</b>. Similar to troubadours but sang in Old French.</li>
+          <li><b>Minstrels</b> — traveling performers who entertained in courts and public spaces.</li>
+        </ul>
+      `},
+      {title:'KEY COMPOSERS', html:`
+        <div class="composer"><span class="name">Hildegard of Bingen (1098–1179)</span><div class="desc">German nun, mystic, and composer. One of the first known composers by name. Wrote elaborate chants with unusually wide melodic ranges. Also a writer, philosopher, and scientist.</div></div>
+        <div class="composer"><span class="name">Léonin (fl. late 12th c.)</span><div class="desc">Notre Dame School in Paris. Created early 2-voice organum. Compiled the <b>Magnus Liber Organi</b> (Great Book of Organum).</div></div>
+        <div class="composer"><span class="name">Pérotin (fl. c. 1200)</span><div class="desc">Notre Dame School. Expanded organum to <b>3 and 4 voices</b>. Introduced <b>rhythmic modes</b> (organized rhythmic patterns).</div></div>
+        <div class="composer"><span class="name">Guillaume de Machaut (c. 1300–1377)</span><div class="desc"><b>Ars Nova</b> master. Composed the first complete <b>polyphonic setting of the Mass Ordinary</b>: <i>Messe de Nostre Dame</i>. Also wrote secular songs.</div></div>
+      `}
+    ]
+  },
+  {
+    id:'renaissance', title:'THE RENAISSANCE', period:'1450 — 1600',
+    sections:[
+      {title:'SOCIO-POLITICAL CONTEXT', html:`
+        <p><b>Humanism</b> — a renewed interest in human experience, classical antiquity, and individual achievement. The <b>middle class</b> rises. Art and music are no longer exclusively for the Church.</p>
+        <p>The <b>printing press</b> (Gutenberg, c. 1440) revolutionizes music distribution. For the first time, music can spread widely and affordably.</p>
+        <p>Music shifts from being primarily a sacred activity to a valued secular art form as well.</p>
+      `},
+      {title:'SACRED MUSIC', html:`
+        <ul>
+          <li><b>Mass</b> — polyphonic settings of the five-part Mass Ordinary remain the most prestigious form of composition.</li>
+          <li><b>Motet</b> — polyphonic choral work on a sacred Latin text, <b>not</b> part of the Mass liturgy. More flexible and expressive.</li>
+          <li><b>Council of Trent (mid-16th c.)</b> — Catholic Church reforms during the Counter-Reformation demanded <b>text clarity</b> in sacred music. Excessive polyphonic complexity was criticized for obscuring the words.</li>
+        </ul>
+      `},
+      {title:'SECULAR MUSIC', html:`
+        <ul>
+          <li><b>Madrigal</b> — secular vocal piece for multiple voices in the <b>vernacular</b> (Italian or English, not Latin). Heavy use of <b>word painting</b> (music mimics the text's meaning). Popular in Italy and England.</li>
+          <li><b>Lute songs (Ayres)</b> — solo vocal music with lute accompaniment. More intimate than madrigals.</li>
+          <li><b>Instrumental dance collections</b> — published sets of dances for ensemble performance.</li>
+        </ul>
+      `},
+      {title:'THE VENETIAN SCHOOL', html:`
+        <p>Based at <b>St. Mark's Basilica</b> in Venice. Pioneered <b>cori spezzati</b> ("split choirs") — placing multiple choirs in different locations in the church for an <b>antiphonal, stereo-like effect</b>. Also pioneered early use of written dynamic markings and prominent brass writing.</p>
+      `},
+      {title:'KEY COMPOSERS', html:`
+        <div class="composer"><span class="name">Josquin des Prez (c. 1450–1521)</span><div class="desc">Master of Renaissance polyphony. Known for expressive <b>word painting</b> and emotional depth. Called "the master of the notes" — he made the notes serve the text.</div></div>
+        <div class="composer"><span class="name">Giovanni Pierluigi da Palestrina (c. 1525–1594)</span><div class="desc">His smooth, balanced, consonant polyphony became the <b>model of "perfect" church music</b>. Directly linked to the <b>Council of Trent</b> reforms — his music proved polyphony could be clear.</div></div>
+        <div class="composer"><span class="name">Thomas Tallis (c. 1505–1585)</span><div class="desc">English composer who served under <b>4 monarchs</b> (Henry VIII, Edward VI, Mary I, Elizabeth I). Wrote in both Latin and English. Famous for <b><i>Spem in Alium</i></b>, a motet for <b>40 voices</b>.</div></div>
+        <div class="composer"><span class="name">John Dowland (1563–1626)</span><div class="desc">Master of the <b>lute song (ayre)</b>. Known for a <b>melancholic</b> style. Famous work: <i>"Flow My Tears."</i></div></div>
+        <div class="composer"><span class="name">Michael Praetorius (1571–1621)</span><div class="desc">German composer and music theorist. Wrote <b><i>Syntagma Musicum</i></b> (a music encyclopedia) and <b><i>Terpsichore</i></b> (a collection of over 300 dances).</div></div>
+        <div class="composer"><span class="name">Tielman Susato (c. 1510–1570)</span><div class="desc">Flemish music publisher and composer. Published <b><i>Danserye</i></b>, one of the first printed collections of instrumental dance music.</div></div>
+        <div class="composer"><span class="name">Giovanni Gabrieli (c. 1557–1612)</span><div class="desc">Venetian School. Master of <b>cori spezzati</b> at St. Mark's Basilica. Among the first to write specific <b>dynamic markings</b> (piano/forte) in scores. Major brass writing.</div></div>
+      `}
+    ]
+  },
+  {
+    id:'baroque', title:'THE BAROQUE PERIOD', period:'1600 — 1750',
+    sections:[
+      {title:'SOCIO-POLITICAL CONTEXT', html:`
+        <p>The <b>Age of Absolutism</b> — powerful monarchs (Louis XIV of France) and the Church commission grand, opulent art. "Baroque" originally meant "misshapen pearl" — a criticism of the era's ornate excess.</p>
+        <p><b>Visual art connections:</b> Bernini, Caravaggio, Rubens — dramatic, emotional, ornate, with strong contrasts of light/dark (chiaroscuro). Music mirrors this: dramatic, ornamental, with strong contrasts.</p>
+      `},
+      {title:'KEY MUSICAL CONCEPTS', html:`
+        <ul>
+          <li><b>Basso continuo</b> (figured bass) — the foundation of Baroque harmony. A bass line played by a low instrument (cello/bassoon) + chords realized by keyboard (harpsichord). Present in virtually all Baroque music.</li>
+          <li><b>Tonality</b> — the system of major and minor keys fully established in this era.</li>
+          <li><b>Terraced dynamics</b> — sudden shifts between loud and soft (no gradual crescendo/decrescendo).</li>
+          <li><b>Ornamentation</b> — trills, turns, mordents, and other decorations added to melodies.</li>
+          <li><b>Doctrine of Affections</b> — the idea that a single piece (or movement) should express one unified emotion throughout.</li>
+        </ul>
+      `},
+      {title:'GENRES', html:`
+        <ul>
+          <li><b>Opera</b> — staged drama set to music. Born in Florence c. 1600 by the <b>Florentine Camerata</b> (trying to recreate Greek drama). Key parts: <b>recitative</b> (speech-like singing, advances plot), <b>aria</b> (lyrical emotional solo), <b>libretto</b> (the text/script).</li>
+          <li><b>Baroque Orchestra</b> — strings + basso continuo at the core. Smaller and less standardized than the Classical orchestra.</li>
+          <li><b>Chamber Cantata</b> — secular vocal work for small forces: arias + recitatives.</li>
+          <li><b>"Lutheran" / "Church" Cantata</b> — sacred vocal work for worship. Includes chorales, arias, recitatives, and chorus.</li>
+          <li><b>Oratorio</b> — like opera but on a sacred/biblical subject, <b>unstaged</b>, with a <b>prominent chorus</b>. (e.g., Handel's <i>Messiah</i>)</li>
+          <li><b>Keyboard Prelude</b> — free-form introductory piece for keyboard.</li>
+          <li><b>Fugue</b> — polyphonic composition built on a <b>subject</b> (theme) that enters in imitation across multiple voices.</li>
+          <li><b>Trio Sonata</b> — 2 melody instruments + basso continuo.</li>
+          <li><b>Concerto Grosso</b> — small group of soloists (<b>concertino</b>) contrasted against the full ensemble (<b>ripieno</b>).</li>
+          <li><b>Solo Concerto</b> — one soloist vs. orchestra.</li>
+          <li><b>Dance Suite</b> — collection of stylized dances: allemande, courante, sarabande, gigue, etc.</li>
+        </ul>
+      `},
+      {title:'KEY COMPOSERS', html:`
+        <div class="composer"><span class="name">Johann Sebastian Bach (1685–1750)</span><div class="desc">German Lutheran church musician. <b>Master of counterpoint and fugue</b>. Key works: <b>Brandenburg Concertos</b> (concerti grossi), <b>The Well-Tempered Clavier</b> (preludes & fugues in every key), hundreds of cantatas, masses. Deeply religious output.</div></div>
+        <div class="composer"><span class="name">George Frideric Handel (1685–1759)</span><div class="desc">German-born, career in England. <b>Master of the oratorio</b>. <i>Messiah</i> (with the "Hallelujah" chorus) is his most iconic work. Also wrote operas, concertos, and orchestral suites.</div></div>
+        <div class="composer"><span class="name">Claudio Monteverdi (1567–1643)</span><div class="desc">Bridged Renaissance → Baroque. <b>Pioneer of opera</b>. <i>L'Orfeo</i> (1607) is one of the first great operas.</div></div>
+        <div class="composer"><span class="name">Henry Purcell (1659–1695)</span><div class="desc">Greatest English Baroque composer. <i>Dido and Aeneas</i>. Famous "Dido's Lament" uses a <b>ground bass</b> (repeating bass pattern).</div></div>
+        <div class="composer"><span class="name">Barbara Strozzi (1619–1677)</span><div class="desc">Prolific <b>female composer</b> of secular cantatas and arias in <b>Venice</b>. One of the most published composers of her time.</div></div>
+        <div class="composer"><span class="name">Élisabeth Jacquet de la Guerre (1665–1729)</span><div class="desc">French <b>keyboard virtuoso</b>. The <b>first French woman to compose an opera</b>. Also wrote harpsichord suites and cantatas.</div></div>
+        <div class="composer"><span class="name">Arcangelo Corelli (1653–1713)</span><div class="desc">Master of the <b>trio sonata</b> and <b>concerto grosso</b>. Established standards for violin technique and ensemble writing.</div></div>
+        <div class="composer"><span class="name">Antonio Vivaldi (1678–1741)</span><div class="desc">"<b>The Red Priest</b>" (for his red hair). Master of the <b>solo concerto</b>. <i>The Four Seasons</i>. Worked at a girls' orphanage (<i>Ospedale della Pietà</i>) in Venice.</div></div>
+      `}
+    ]
+  },
+  {
+    id:'classical', title:'THE CLASSICAL PERIOD', period:'1750 — 1820',
+    sections:[
+      {title:'SOCIO-POLITICAL CONTEXT', html:`
+        <p>The <b>Age of Enlightenment</b> — emphasis on reason, clarity, universality, and individual rights. Influenced by philosophers like Voltaire and Rousseau. The American and French Revolutions happen during this era.</p>
+        <p><b>Neoclassical</b> visual art (clean lines, balance, restraint inspired by ancient Greece/Rome) directly parallels the <b>Classical</b> music style: clarity, balance, elegance.</p>
+        <p><b>Forms of employment:</b> Still primarily the <b>patronage system</b> (composers employed by courts/churches), but <b>public concerts</b> begin to emerge, creating new opportunities.</p>
+      `},
+      {title:'KEY MUSICAL CONCEPTS', html:`
+        <ul>
+          <li><b>Galant Style</b> — light, elegant, simple <b>homophonic</b> texture (one clear melody + accompaniment). A reaction against Baroque polyphonic complexity.</li>
+          <li><b>Homophonic texture</b> — the dominant texture. One melody line with harmonic accompaniment (vs. Baroque polyphony).</li>
+          <li><b>Gradual dynamics</b> — crescendo and decrescendo replace Baroque terraced dynamics.</li>
+          <li><b>The piano</b> replaces the harpsichord — because it can produce gradual dynamics (pianoforte = "soft-loud").</li>
+          <li><b>Classical Orchestra</b> — larger and more standardized than Baroque: strings, woodwinds (flutes, oboes, clarinets, bassoons), brass (horns, trumpets), timpani.</li>
+        </ul>
+      `},
+      {title:'FORMS & GENRES', html:`
+        <ul>
+          <li><b>Symphony</b> — large orchestral work, typically <b>4 movements</b>: I. Fast (sonata-allegro), II. Slow, III. Minuet & Trio, IV. Fast finale.</li>
+          <li><b>Concerto</b> — soloist + orchestra, typically <b>3 movements</b> (fast-slow-fast). Features a <b>cadenza</b> (solo passage for improvisation/virtuosity).</li>
+          <li><b>String Quartet</b> — 2 violins + viola + cello. Same 4-movement structure as the symphony. "A conversation among four equal voices."</li>
+          <li><b>Serenade / Partita</b> — lighter, multi-movement works for entertainment occasions.</li>
+        </ul>
+      `},
+      {title:'MOVEMENT FORMS', html:`
+        <ul>
+          <li><b>Sonata Form (Sonata-Allegro)</b> — THE form of the Classical era. Three sections: <b>Exposition</b> (two contrasting themes, different keys) → <b>Development</b> (themes manipulated, different keys, most dramatic) → <b>Recapitulation</b> (both themes return in the home key).</li>
+          <li><b>Rondo</b> — a recurring main theme alternates with contrasting episodes: <b>ABACA</b> or <b>ABACABA</b>.</li>
+          <li><b>Theme and Variation</b> — a theme is stated, then varied repeatedly (rhythm, key, ornamentation, etc.).</li>
+          <li><b>Minuet and Trio</b> — <b>ABA</b> dance form in <b>triple meter</b>. The "A" is the minuet, "B" is the trio, then the minuet returns.</li>
+        </ul>
+      `},
+      {title:'KEY COMPOSERS', html:`
+        <div class="composer"><span class="name">Joseph Haydn (1732–1809)</span><div class="desc">"<b>Father of the Symphony</b>" and "<b>Father of the String Quartet</b>." Worked for the <b>Esterházy family</b> for ~30 years. Helped standardize Classical forms. Witty and inventive — <i>Surprise Symphony</i> (No. 94). Wrote 104 symphonies and 68 string quartets.</div></div>
+        <div class="composer"><span class="name">Wolfgang Amadeus Mozart (1756–1791)</span><div class="desc"><b>Child prodigy</b>. Mastered every genre: symphonies, concertos, string quartets, operas. Key operas: <i>The Marriage of Figaro</i>, <i>Don Giovanni</i>, <i>The Magic Flute</i>. Elegant, lyrical, emotionally deep despite Classical clarity. Died at <b>35</b>.</div></div>
+        <div class="composer"><span class="name">Christoph Willibald Gluck (1714–1787)</span><div class="desc"><b>Opera reformer</b> — emphasized drama over vocal display, simplified plots, reduced the dominance of star singers.</div></div>
+        <div class="composer"><span class="name">Joseph Bologne, Chevalier de Saint-Georges (1745–1799)</span><div class="desc"><b>Black French virtuoso violinist</b>, composer, and champion fencer. Wrote symphonies, concertos, and string quartets. A remarkable, barrier-breaking figure.</div></div>
+        <div class="composer"><span class="name">Antonio Rosetti (c. 1750–1792)</span><div class="desc">Composed symphonies and <b>horn concertos</b>.</div></div>
+        <div class="composer"><span class="name">Antonio Salieri (1750–1825)</span><div class="desc"><b>Court composer in Vienna</b>. Taught Beethoven, Schubert, and Liszt. Unfairly maligned by the myth of a rivalry with Mozart (popularized by <i>Amadeus</i>).</div></div>
+      `}
+    ]
+  },
+  {
+    id:'beethoven', title:'BEETHOVEN', period:'1770 — 1827',
+    sections:[
+      {title:'WHY HIS OWN SECTION?', html:`
+        <p>Beethoven doesn't fit neatly into one era. He <b>starts Classical</b> and <b>ends proto-Romantic</b>. He fundamentally changed what music could be and what a composer could mean to society.</p>
+      `},
+      {title:'BIOGRAPHICAL OVERVIEW', html:`
+        <p>Born in <b>Bonn, Germany</b>. Moved to <b>Vienna</b> (the musical capital) in his early 20s to study with Haydn. Began losing his hearing in his <b>late 20s</b>. By his late period, he was <b>almost completely deaf</b> — yet composed some of the greatest music ever written. Used conversation books to communicate. He conducted the premiere of his 9th Symphony without hearing it.</p>
+        <p>He <b>elevated the composer</b> from a servant of aristocrats to an <b>independent artist</b>. The Romantic ideal of the tortured genius begins with Beethoven.</p>
+      `},
+      {title:'EARLY PERIOD (to ~1802)', html:`
+        <p><b>Style:</b> Classical in form and sound, influenced by Haydn and Mozart. "Learning the rules."</p>
+        <p><b>Compositions:</b> Piano sonatas (including <i>Pathétique</i>), first two symphonies, chamber music.</p>
+      `},
+      {title:'MIDDLE / "HEROIC" PERIOD (~1803–1814)', html:`
+        <p><b>Heiligenstadt Testament (1802):</b> A deeply personal letter to his brothers expressing despair over his increasing deafness. He considered suicide but resolved to live for his art. This letter marks the emotional turning point to the Middle period.</p>
+        <p><b>Style:</b> Dramatic, powerful, emotionally intense. Expanded forms — longer, louder, more ambitious. "Breaking the rules."</p>
+        <p><b>Notable compositions:</b></p>
+        <ul>
+          <li><b>Symphony No. 3 "Eroica"</b> — the watershed. Originally dedicated to Napoleon; Beethoven angrily scratched out the dedication when Napoleon crowned himself emperor. Far longer and more dramatic than any previous symphony.</li>
+          <li><b>Symphony No. 5</b> — iconic 4-note opening motif ("fate knocking at the door"). Masterpiece of motivic development.</li>
+          <li><b>Piano Sonata No. 14 "Moonlight"</b> — famous for its haunting first movement.</li>
+        </ul>
+      `},
+      {title:'LATE PERIOD (~1815–1827)', html:`
+        <p><b>Style:</b> Deeply introspective, experimental, spiritual. Pushes boundaries of form and expression. Composed while nearly <b>completely deaf</b>.</p>
+        <p><b>Notable compositions:</b></p>
+        <ul>
+          <li><b>Symphony No. 9</b> — first major symphony to include <b>voices</b>. Final movement sets Schiller's <i>"Ode to Joy"</i>. Groundbreaking in scope and ambition.</li>
+          <li><b>Late String Quartets</b> — some of the most profound chamber music ever written. Deeply personal and forward-looking.</li>
+        </ul>
+      `},
+      {title:'BEETHOVEN vs. THE GALANT STYLE', html:`
+        <ul>
+          <li>Galant = light, elegant, balanced. Beethoven (middle/late) = <b>longer, louder, more dramatic</b>.</li>
+          <li>Galant = pleasant entertainment. Beethoven = <b>intense personal expression</b>.</li>
+          <li>Galant = follows expected forms. Beethoven = <b>expands and subverts</b> those forms.</li>
+          <li>Galant = predictable dynamics. Beethoven = <b>extreme dynamic contrasts</b>, sudden silences, unexpected outbursts.</li>
+        </ul>
+      `}
+    ]
+  }
+];
+
+const FLASHCARDS = [
+  // MIDDLE AGES
+  {era:'Medieval',front:'What is Gregorian chant?',back:'Monophonic sacred music of the Catholic Church. Sung in Latin, a cappella (no instruments), with free rhythm (no regular beat). Named after Pope Gregory I.'},
+  {era:'Medieval',front:'What is polyphony?',back:'Musical texture with two or more independent melodic lines sounding simultaneously. The great innovation of the Middle Ages.'},
+  {era:'Medieval',front:'What is organum?',back:'The earliest form of polyphony — adding a second voice to an existing Gregorian chant melody.'},
+  {era:'Medieval',front:'Who was Hildegard of Bingen?',back:'German nun, mystic, and composer (1098–1179). One of the first known composers by name. Wrote elaborate chants with unusually wide melodic ranges.'},
+  {era:'Medieval',front:'Who was Léonin?',back:'Notre Dame School composer. Created early 2-voice organum. Compiled the Magnus Liber Organi (Great Book of Organum).'},
+  {era:'Medieval',front:'Who was Pérotin?',back:'Notre Dame School composer. Expanded organum to 3–4 voices. Introduced rhythmic modes (organized rhythmic patterns).'},
+  {era:'Medieval',front:'Who was Guillaume de Machaut?',back:'Ars Nova master. Composed the first complete polyphonic setting of the Mass Ordinary: Messe de Nostre Dame.'},
+  {era:'Medieval',front:'What is the Mass Ordinary?',back:'The five sections of the Mass with texts that stay the same every service: Kyrie, Gloria, Credo, Sanctus, Agnus Dei.'},
+  {era:'Medieval',front:'Who were the Troubadours?',back:'Poet-musicians of southern France. Performed secular songs, often about courtly love, in Occitan.'},
+  {era:'Medieval',front:'What was the Notre Dame School?',back:'Center of polyphonic innovation in Paris (12th–13th c.). Associated with Léonin and Pérotin.'},
+  // RENAISSANCE
+  {era:'Renaissance',front:'What is a madrigal?',back:'Secular vocal composition for multiple voices, in the vernacular (not Latin). Features heavy use of word painting. Popular in Italy and England.'},
+  {era:'Renaissance',front:'What is word painting?',back:'Musical technique where the music mimics the meaning of the text — e.g., ascending melody on "rise," descending melody on "fall."'},
+  {era:'Renaissance',front:'What was the Council of Trent?',back:'Mid-16th century Catholic Church council (Counter-Reformation) that demanded text clarity in sacred music. Excessive polyphonic complexity was criticized for obscuring the words.'},
+  {era:'Renaissance',front:'Who was Josquin des Prez?',back:'Master of Renaissance polyphony. Known for expressive word painting and emotional depth. Called "the master of the notes."'},
+  {era:'Renaissance',front:'Who was Palestrina?',back:'Italian composer whose smooth, balanced polyphony became the model of "perfect" church music. Linked to the Council of Trent — proved polyphony could be text-clear.'},
+  {era:'Renaissance',front:'What is cori spezzati?',back:'"Split choirs" — antiphonal technique placing multiple choirs in different locations for a stereo-like effect. Associated with the Venetian School at St. Mark\'s Basilica.'},
+  {era:'Renaissance',front:'Who was Thomas Tallis?',back:'English composer who served under 4 monarchs. Wrote Spem in Alium, a motet for 40 voices. Composed in both Latin and English.'},
+  {era:'Renaissance',front:'Who was John Dowland?',back:'Master of the lute song (ayre). Known for a melancholic style. Famous work: "Flow My Tears."'},
+  {era:'Renaissance',front:'What is a motet (Renaissance)?',back:'Polyphonic choral work on a sacred Latin text, NOT part of the Mass liturgy. More flexible and expressive than a Mass setting.'},
+  {era:'Renaissance',front:'Who was Giovanni Gabrieli?',back:'Venetian School composer at St. Mark\'s. Pioneered cori spezzati, early dynamics markings (piano/forte in the score), and brass writing.'},
+  {era:'Renaissance',front:'Who was Tielman Susato?',back:'Flemish publisher and composer. Published Danserye — one of the first printed instrumental dance collections.'},
+  {era:'Renaissance',front:'Who was Michael Praetorius?',back:'German composer. Wrote Syntagma Musicum (music encyclopedia) and Terpsichore (collection of 300+ dances).'},
+  // BAROQUE
+  {era:'Baroque',front:'What is basso continuo?',back:'Foundation of Baroque harmony: a bass line played by a low instrument (cello/bassoon) + chords realized by keyboard (harpsichord). Present in virtually all Baroque music.'},
+  {era:'Baroque',front:'What are terraced dynamics?',back:'Sudden shifts between loud and soft — no gradual crescendo/decrescendo. Characteristic of Baroque music.'},
+  {era:'Baroque',front:'What is an oratorio?',back:'Large-scale vocal work on a sacred/biblical subject. Like opera but UNSTAGED, with a prominent chorus. E.g., Handel\'s Messiah.'},
+  {era:'Baroque',front:'What is a fugue?',back:'Polyphonic composition built on a subject (theme) that enters in imitation across multiple voices, one at a time.'},
+  {era:'Baroque',front:'What is a concerto grosso?',back:'Baroque concerto form: a small group of soloists (concertino) contrasted against the full ensemble (ripieno/tutti).'},
+  {era:'Baroque',front:'What is recitative?',back:'Speech-like singing in opera/cantata that advances the plot. Follows natural speech rhythms, less melodic than an aria.'},
+  {era:'Baroque',front:'What is an aria?',back:'Lyrical, emotional solo song in an opera, cantata, or oratorio. Where the singer showcases their voice and expresses deep feeling.'},
+  {era:'Baroque',front:'Who was J.S. Bach?',back:'German Lutheran church musician (1685–1750). Master of counterpoint and fugue. Key works: Brandenburg Concertos, Well-Tempered Clavier, hundreds of cantatas.'},
+  {era:'Baroque',front:'Who was Handel?',back:'German-born, career in England (1685–1759). Master of the oratorio. Messiah (with "Hallelujah" chorus) is his most famous. Also wrote operas.'},
+  {era:'Baroque',front:'Who was Monteverdi?',back:'Bridged Renaissance → Baroque. Pioneer of opera. L\'Orfeo (1607) is one of the first great operas.'},
+  {era:'Baroque',front:'Who was Vivaldi?',back:'"The Red Priest." Master of the solo concerto. The Four Seasons. Worked at a girls\' orphanage in Venice.'},
+  {era:'Baroque',front:'Who was Barbara Strozzi?',back:'Prolific female composer of secular cantatas and arias in Venice. One of the most published composers of her time.'},
+  {era:'Baroque',front:'Who was Élisabeth Jacquet de la Guerre?',back:'French keyboard virtuoso. The first French woman to compose an opera. Also wrote harpsichord suites and cantatas.'},
+  {era:'Baroque',front:'Who was Corelli?',back:'Master of the trio sonata and concerto grosso. Established standards for violin technique.'},
+  {era:'Baroque',front:'Who was Purcell?',back:'Greatest English Baroque composer. Dido and Aeneas. "Dido\'s Lament" uses a ground bass (repeating bass pattern).'},
+  {era:'Baroque',front:'What was the Florentine Camerata?',back:'Group of intellectuals in Florence who created opera around 1600, trying to recreate the drama of ancient Greek theater.'},
+  {era:'Baroque',front:'What is a dance suite?',back:'Collection of stylized dance movements — typically: allemande, courante, sarabande, gigue, and optional extras.'},
+  {era:'Baroque',front:'What is a trio sonata?',back:'Baroque chamber genre: 2 melody instruments + basso continuo (so actually 3–4 players despite the name "trio").'},
+  // CLASSICAL
+  {era:'Classical',front:'What is sonata form?',back:'THE form of the Classical era. Three sections: Exposition (2 contrasting themes in different keys) → Development (themes manipulated, unstable) → Recapitulation (both themes return in the home key).'},
+  {era:'Classical',front:'What is the galant style?',back:'Light, elegant, simple homophonic texture (melody + accompaniment). A reaction against Baroque polyphonic complexity.'},
+  {era:'Classical',front:'Who was Haydn?',back:'"Father of the Symphony" and "Father of the String Quartet." Worked for the Esterházy family ~30 years. Witty — Surprise Symphony No. 94. 104 symphonies, 68 string quartets.'},
+  {era:'Classical',front:'Who was Mozart?',back:'Child prodigy. Mastered every genre. Operas: Marriage of Figaro, Don Giovanni, Magic Flute. Elegant and emotionally deep. Died at 35.'},
+  {era:'Classical',front:'How many movements does a symphony have?',back:'Typically 4: I. Fast (often sonata-allegro form), II. Slow, III. Minuet & Trio (dance), IV. Fast finale.'},
+  {era:'Classical',front:'What is a cadenza?',back:'A solo passage near the end of a concerto movement where the soloist improvises or showcases their technical skill.'},
+  {era:'Classical',front:'What is a string quartet?',back:'Chamber ensemble of 2 violins + viola + cello. Also the genre written for this group. Typically 4 movements.'},
+  {era:'Classical',front:'What is rondo form?',back:'Musical form with a recurring main theme alternating with contrasting episodes: ABACA or ABACABA.'},
+  {era:'Classical',front:'Who was Joseph Bologne?',back:'Chevalier de Saint-Georges. Black French virtuoso violinist, composer, and champion fencer. Wrote symphonies, concertos, and string quartets.'},
+  {era:'Classical',front:'Who was Gluck?',back:'Opera reformer — emphasized drama over vocal display, simplified plots, reduced the dominance of star singers.'},
+  {era:'Classical',front:'Who was Salieri?',back:'Court composer in Vienna. Taught Beethoven, Schubert, and Liszt. Unfairly maligned by the myth of rivalry with Mozart.'},
+  {era:'Classical',front:'What is theme and variation form?',back:'A theme is stated, then varied repeatedly — changes in rhythm, key, ornamentation, texture, etc.'},
+  {era:'Classical',front:'What is minuet and trio form?',back:'ABA dance form in triple meter. A = minuet, B = trio (contrasting), then A = minuet returns.'},
+  // BEETHOVEN
+  {era:'Beethoven',front:'What are Beethoven\'s three style periods?',back:'Early (~to 1802): Classical, Haydn/Mozart influence. Middle/Heroic (~1803–1814): dramatic, expanded forms. Late (~1815–1827): introspective, experimental, composed nearly deaf.'},
+  {era:'Beethoven',front:'What is the Heiligenstadt Testament?',back:'A letter Beethoven wrote in 1802 expressing despair over his increasing deafness. He considered suicide but resolved to live for his art. Marks the transition to his Middle period.'},
+  {era:'Beethoven',front:'Why is the Eroica (Symphony No. 3) significant?',back:'Marks the beginning of the Middle/Heroic period. Originally dedicated to Napoleon — Beethoven scratched it out when Napoleon crowned himself emperor. Far longer and more dramatic than any previous symphony.'},
+  {era:'Beethoven',front:'Why is Symphony No. 9 significant?',back:'The first major symphony to include voices. The final movement sets Schiller\'s "Ode to Joy." Composed while Beethoven was nearly completely deaf.'},
+  {era:'Beethoven',front:'How did Beethoven change the role of the composer?',back:'Elevated the composer from a servant of aristocrats to an independent artist. The Romantic ideal of the tortured genius begins with him.'},
+  {era:'Beethoven',front:'How does Beethoven differ from the galant style?',back:'Galant = light, elegant, balanced. Beethoven = longer, louder, more dramatic, emotionally intense, expanded forms, extreme dynamic contrasts, unexpected outbursts.'},
+];
+
+const QUIZ = [
+  {era:'Medieval',q:'Gregorian chant is best described as:',opts:['Polyphonic and accompanied by instruments','Monophonic, Latin, a cappella, with free rhythm','Homophonic with basso continuo','Secular songs in the vernacular'],ans:1},
+  {era:'Medieval',q:'Who composed the first complete polyphonic setting of the Mass Ordinary?',opts:['Léonin','Hildegard of Bingen','Guillaume de Machaut','Pérotin'],ans:2},
+  {era:'Medieval',q:'The Notre Dame School is most associated with:',opts:['The birth of opera','The development of early polyphony','The invention of the printing press','The galant style'],ans:1},
+  {era:'Medieval',q:'Troubadours were:',opts:['Monks who sang Gregorian chant','Poet-musicians from southern France performing secular music','Members of the Notre Dame School','Italian madrigal singers'],ans:1},
+  {era:'Medieval',q:'Pérotin\'s main contribution was:',opts:['Creating the first opera','Expanding organum to 3–4 voices','Writing the first polyphonic Mass','Inventing the printing press'],ans:1},
+  {era:'Medieval',q:'Hildegard of Bingen is notable because:',opts:['She invented musical notation','She was one of the first known composers by name','She created the first polyphonic Mass','She founded the Notre Dame School'],ans:1},
+  {era:'Medieval',q:'What is organum?',opts:['A keyboard instrument','A type of dance suite','Early polyphony adding a voice to Gregorian chant','A secular song form'],ans:2},
+  {era:'Medieval',q:'Léonin compiled which important collection?',opts:['Danserye','Syntagma Musicum','Terpsichore','Magnus Liber Organi'],ans:3},
+  {era:'Renaissance',q:'What is word painting?',opts:['Decorating manuscripts with musical illustrations','Music that mimics the meaning of the text','A technique for tuning instruments','A method of teaching sight-reading'],ans:1},
+  {era:'Renaissance',q:'The Council of Trent demanded:',opts:['That all music be secular','Text clarity in sacred music','The abolition of polyphony','That composers use only instruments'],ans:1},
+  {era:'Renaissance',q:'Which composer\'s music became the model of "perfect" Renaissance church polyphony?',opts:['Josquin des Prez','John Dowland','Giovanni Gabrieli','Palestrina'],ans:3},
+  {era:'Renaissance',q:'Cori spezzati refers to:',opts:['A type of madrigal','A keyboard technique','Split choirs for an antiphonal/stereo effect','The printing of music'],ans:2},
+  {era:'Renaissance',q:'John Dowland was known for:',opts:['Polyphonic Masses','Lute songs with a melancholic style','Cori spezzati technique','Instrumental dance collections'],ans:1},
+  {era:'Renaissance',q:'Thomas Tallis\'s Spem in Alium is notable for being written for:',opts:['Solo lute','4 voices','40 voices','Full orchestra'],ans:2},
+  {era:'Renaissance',q:'Who published Danserye, an instrumental dance collection?',opts:['Michael Praetorius','Giovanni Gabrieli','Tielman Susato','Josquin des Prez'],ans:2},
+  {era:'Renaissance',q:'A Renaissance motet is:',opts:['A secular dance for instruments','A polyphonic choral work on a sacred Latin text, not part of the Mass','An operatic aria','A keyboard prelude'],ans:1},
+  {era:'Baroque',q:'Basso continuo consists of:',opts:['A choir and organ','A bass instrument + keyboard realizing chords','Two violins and a cello','A full Classical orchestra'],ans:1},
+  {era:'Baroque',q:'The Florentine Camerata is credited with:',opts:['Creating the fugue','Inventing the piano','Creating opera around 1600','Establishing the symphony'],ans:2},
+  {era:'Baroque',q:'Terraced dynamics means:',opts:['Gradual increases in volume','Sudden shifts between loud and soft','Constant soft playing','Dynamics written in the score for the first time'],ans:1},
+  {era:'Baroque',q:'An oratorio differs from an opera because it is:',opts:['Written only for instruments','Sacred/biblical and unstaged, with prominent chorus','Always performed in Italian','Shorter and simpler'],ans:1},
+  {era:'Baroque',q:'A fugue is built on:',opts:['A basso continuo pattern','A subject that enters in imitation across voices','Terraced dynamics','A dance rhythm sequence'],ans:1},
+  {era:'Baroque',q:'In a concerto grosso, the small group of soloists is called the:',opts:['Ripieno','Tutti','Concertino','Basso continuo'],ans:2},
+  {era:'Baroque',q:'Who composed L\'Orfeo (1607), one of the first great operas?',opts:['Vivaldi','Bach','Monteverdi','Handel'],ans:2},
+  {era:'Baroque',q:'Vivaldi was known as:',opts:['"The Master of the Notes"','"Father of the Symphony"','"The Red Priest"','"The English Orpheus"'],ans:2},
+  {era:'Baroque',q:'Bach\'s Well-Tempered Clavier is a collection of:',opts:['Operas','Oratorios','Preludes and fugues in every key','Dance suites'],ans:2},
+  {era:'Baroque',q:'Handel\'s most famous oratorio is:',opts:['L\'Orfeo','The Four Seasons','Messiah','Dido and Aeneas'],ans:2},
+  {era:'Baroque',q:'Barbara Strozzi was known for composing:',opts:['Operas in England','Secular cantatas and arias in Venice','Church cantatas in Germany','Symphonies in Vienna'],ans:1},
+  {era:'Baroque',q:'Purcell\'s "Dido\'s Lament" features which technique?',opts:['Cori spezzati','Ground bass','Word painting in a madrigal','Terraced dynamics'],ans:1},
+  {era:'Baroque',q:'Élisabeth Jacquet de la Guerre was notable as:',opts:['The first female conductor','The first French woman to compose an opera','The inventor of the harpsichord','A troubadour'],ans:1},
+  {era:'Baroque',q:'Corelli was a master of the:',opts:['Opera and cantata','Trio sonata and concerto grosso','Fugue and prelude','Symphony and string quartet'],ans:1},
+  {era:'Classical',q:'The three sections of sonata form are:',opts:['Verse, Chorus, Bridge','Theme, Variation, Coda','Exposition, Development, Recapitulation','Prelude, Fugue, Postlude'],ans:2},
+  {era:'Classical',q:'The galant style is characterized by:',opts:['Ornate Baroque complexity','Light, elegant, homophonic texture','Monophonic chant','Atonal experimentation'],ans:1},
+  {era:'Classical',q:'Haydn is known as:',opts:['"Father of Opera"','"Father of the Symphony" and "Father of the String Quartet"','"Father of the Concerto"','"The Red Priest"'],ans:1},
+  {era:'Classical',q:'A Classical symphony typically has how many movements?',opts:['2','3','4','5'],ans:2},
+  {era:'Classical',q:'What is a cadenza?',opts:['A dance movement in a suite','A solo passage where the soloist improvises/shows off','The final chord of a symphony','A type of vocal recitative'],ans:1},
+  {era:'Classical',q:'A string quartet consists of:',opts:['4 violins','2 violins, viola, and cello','Violin, viola, cello, and bass','2 violins and 2 cellos'],ans:1},
+  {era:'Classical',q:'Mozart\'s operas include:',opts:['L\'Orfeo and Dido and Aeneas','Messiah and The Seasons','The Marriage of Figaro, Don Giovanni, The Magic Flute','Eroica and Moonlight'],ans:2},
+  {era:'Classical',q:'Joseph Bologne (Chevalier de Saint-Georges) was:',opts:['An Italian opera composer','A Black French virtuoso violinist, composer, and fencer','A German church musician','An English madrigal composer'],ans:1},
+  {era:'Classical',q:'Rondo form follows the pattern:',opts:['ABA','AABB','ABACA','Exposition-Development-Recapitulation'],ans:2},
+  {era:'Classical',q:'Which era features homophonic texture as the dominant style?',opts:['Middle Ages','Renaissance','Baroque','Classical'],ans:3},
+  {era:'Classical',q:'Minuet and Trio form is:',opts:['A two-part form in duple meter','An ABA dance form in triple meter','A fugal form with three subjects','A variation form'],ans:1},
+  {era:'Classical',q:'The Age of Enlightenment is associated with which musical era?',opts:['Middle Ages','Renaissance','Baroque','Classical'],ans:3},
+  {era:'Beethoven',q:'The Heiligenstadt Testament was:',opts:['Bach\'s guide to counterpoint','Mozart\'s letter to his father','Beethoven\'s letter expressing despair over his deafness','Haydn\'s autobiography'],ans:2},
+  {era:'Beethoven',q:'Beethoven\'s Eroica (Symphony No. 3) was originally dedicated to:',opts:['Haydn','Mozart','Napoleon','The Esterházy family'],ans:2},
+  {era:'Beethoven',q:'Beethoven\'s Symphony No. 9 is significant because it was:',opts:['His first symphony','The first major symphony to include voices','The introduction of the concerto form','Written for only string instruments'],ans:1},
+  {era:'Beethoven',q:'Beethoven\'s three style periods are:',opts:['Youth, Prime, Retirement','Early, Middle/Heroic, Late','Classical, Romantic, Modern','Sacred, Secular, Instrumental'],ans:1},
+  {era:'Beethoven',q:'How did Beethoven change the role of the composer?',opts:['He made composers wealthy aristocrats','He elevated the composer from servant to independent artist','He created the first music school','He abolished the patronage system entirely'],ans:1},
+  {era:'Beethoven',q:'Beethoven\'s Late period is characterized by:',opts:['Strict adherence to Classical forms','Light, galant style','Introspective, experimental works composed while nearly deaf','Only writing operas'],ans:2},
+  {era:'Baroque',q:'The Age of Absolutism is associated with which musical era?',opts:['Middle Ages','Renaissance','Baroque','Classical'],ans:2},
+  {era:'Renaissance',q:'The printing press had its biggest initial impact on music during:',opts:['The Middle Ages','The Renaissance','The Baroque','The Classical period'],ans:1},
+];
+
+const TIMELINE = [
+  {era:'Middle Ages',dates:'450–1450',composers:['Hildegard of Bingen','Léonin','Pérotin','Machaut']},
+  {era:'Renaissance',dates:'1450–1600',composers:['Josquin','Palestrina','Tallis','Dowland','Gabrieli']},
+  {era:'Baroque',dates:'1600–1750',composers:['Monteverdi','Purcell','Strozzi','Corelli','Vivaldi','Bach','Handel']},
+  {era:'Classical',dates:'1750–1820',composers:['Gluck','Haydn','Mozart','Bologne','Salieri']},
+  {era:'Beethoven',dates:'1770–1827',composers:['Beethoven']},
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let mode = 'review';
+let fcIndex = 0, fcFlipped = false, fcFilter = 'All', fcDeck = [...FLASHCARDS];
+let quizActive = false, quizIndex = 0, quizScore = 0, quizAnswered = false, quizDeck = [], quizWrong = [];
+let openCards = {};
+
+const stored = JSON.parse(localStorage.getItem('mu100_stats')||'{}');
+let stats = { quizzes: stored.quizzes||0, bestPct: stored.bestPct||0, cardsFlipped: stored.cardsFlipped||0 };
+function saveStats(){ localStorage.setItem('mu100_stats', JSON.stringify(stats)); }
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = renderHeader() + renderNav() + renderContent() + renderKBHints();
+  bindEvents();
+}
+
+function renderHeader(){
+  return `<div class="header">
+    <div><h1>MU 100 <span>//</span> MIDTERM</h1><div class="sub">Dr. Hontz &mdash; Intro to Music Literature</div></div>
+    <div class="stats">
+      <div>Quizzes: <b>${stats.quizzes}</b></div>
+      <div>Best: <b>${stats.bestPct}%</b></div>
+      <div>Cards: <b>${stats.cardsFlipped}</b></div>
+    </div>
+  </div>`;
+}
+
+function renderNav(){
+  const tabs = ['review','flashcards','quiz','timeline'];
+  return `<div class="nav">${tabs.map(t =>
+    `<button data-mode="${t}" class="${mode===t?'active':''}">${t}</button>`
+  ).join('')}</div>`;
+}
+
+function renderContent(){
+  if(mode==='review') return renderReview();
+  if(mode==='flashcards') return renderFlashcards();
+  if(mode==='quiz') return renderQuiz();
+  if(mode==='timeline') return renderTimeline();
+}
+
+function renderReview(){
+  return REVIEW.map((era,i) => {
+    const isOpen = openCards[era.id];
+    return `<div class="card ${isOpen?'open':''} fade-in" style="animation-delay:${i*0.06}s">
+      <div class="card-head" data-card="${era.id}">
+        <h2>${era.title} <span class="period">${era.period}</span></h2>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="card-body"><div class="card-content">
+        ${era.sections.map(s => `<h3>${s.title}</h3>${s.html}`).join('')}
+      </div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderFlashcards(){
+  const eras = ['All','Medieval','Renaissance','Baroque','Classical','Beethoven'];
+  const deck = fcFilter==='All' ? fcDeck : fcDeck.filter(c=>c.era===fcFilter);
+  const card = deck[fcIndex] || deck[0];
+  if(!card) return '<p style="text-align:center;color:var(--dim)">No cards in this category.</p>';
+  const idx = Math.min(fcIndex, deck.length-1);
+  const pct = ((idx+1)/deck.length*100).toFixed(0);
+
+  return `<div class="fc-container">
+    <div class="fc-filter">${eras.map(e =>
+      `<button data-era="${e}" class="${fcFilter===e?'active':''}">${e}</button>`
+    ).join('')}</div>
+    <div class="fc-progress">Card <b>${idx+1}</b> of <b>${deck.length}</b></div>
+    <div class="fc-bar"><div class="fc-bar-fill" style="width:${pct}%"></div></div>
+    <div class="fc-card-wrap" id="fc-flip">
+      <div class="fc-card ${fcFlipped?'flipped':''}">
+        <div class="fc-face front">
+          <div class="fc-label">${card.era}</div>
+          <div class="fc-text">${card.front}</div>
+          <div class="fc-hint">click or press space to flip</div>
+        </div>
+        <div class="fc-face back">
+          <div class="fc-label">Answer</div>
+          <div class="fc-back-text">${card.back}</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn" id="fc-prev">&larr; Prev</button>
+      <button class="fc-btn accent" id="fc-shuffle">Shuffle</button>
+      <button class="fc-btn" id="fc-next">Next &rarr;</button>
+    </div>
+  </div>`;
+}
+
+function renderQuiz(){
+  if(!quizActive){
+    return `<div class="quiz-intro fade-in">
+      <h2>[QUIZ MODE]</h2>
+      <p>${QUIZ.length} questions covering all eras.<br>Multiple choice. See your score at the end.</p>
+      <button class="quiz-start-btn" id="quiz-start">BEGIN QUIZ</button>
+    </div>`;
+  }
+  if(quizIndex >= quizDeck.length){
+    const pct = Math.round(quizScore/quizDeck.length*100);
+    const cls = pct>=80?'':pct>=60?'mid':'low';
+    stats.quizzes++;
+    if(pct>stats.bestPct) stats.bestPct = pct;
+    saveStats();
+    let wrongHtml = '';
+    if(quizWrong.length){
+      wrongHtml = `<div class="quiz-review-list"><h3 style="font-size:.75rem;color:var(--dim);letter-spacing:2px;margin-bottom:.75rem">REVIEW MISSED QUESTIONS</h3>
+        ${quizWrong.map(w => `<div class="quiz-review-item">
+          <div class="q">${w.q}</div>
+          <div class="your-ans">Your answer: ${w.yours}</div>
+          <div class="correct-ans">Correct: ${w.correct}</div>
+        </div>`).join('')}
+      </div>`;
+    }
+    return `<div class="quiz-result fade-in">
+      <h2>RESULTS</h2>
+      <div class="quiz-score ${cls}">${pct}%</div>
+      <div class="quiz-breakdown">
+        <div class="right"><b>${quizScore}</b>correct</div>
+        <div class="wrong"><b>${quizDeck.length - quizScore}</b>missed</div>
+      </div>
+      ${wrongHtml}
+      <button class="quiz-start-btn" id="quiz-restart" style="margin-top:1rem">TRY AGAIN</button>
+    </div>`;
+  }
+  const qObj = quizDeck[quizIndex];
+  return `<div class="quiz-q fade-in">
+    <div class="quiz-meta">
+      <span>Question ${quizIndex+1} / ${quizDeck.length}</span>
+      <span class="era-tag">${qObj.era}</span>
+    </div>
+    <div class="quiz-question">${qObj.q}</div>
+    <div class="quiz-options">
+      ${qObj.shuffledOpts.map((opt,i) => {
+        let cls = 'quiz-opt';
+        if(quizAnswered){
+          cls += ' locked';
+          if(i === qObj.correctShuffled) cls += ' correct';
+          if(qObj.userAnswer === i && i !== qObj.correctShuffled) cls += ' wrong';
+        }
+        return `<button class="${cls}" data-qi="${i}"><span class="key">${['A','B','C','D'][i]}</span>${opt}</button>`;
+      }).join('')}
+    </div>
+    ${quizAnswered ? `<div class="quiz-next"><button id="quiz-next-btn">Next &rarr;</button></div>` : ''}
+  </div>`;
+}
+
+function renderTimeline(){
+  return `<div class="timeline-wrap"><div class="timeline">
+    ${TIMELINE.map((t,i) => `<div class="tl-era fade-in" style="animation-delay:${i*0.1}s">
+      <div class="tl-era-label"><h3>${t.era}</h3><div class="dates">${t.dates}</div></div>
+      <div class="tl-dot"></div>
+      <div class="tl-composers">${t.composers.map(c=>`<span>${c}</span>`).join('')}</div>
+    </div>`).join('')}
+  </div></div>`;
+}
+
+function renderKBHints(){
+  if(mode==='flashcards') return `<div class="kb-hints"><kbd>&larr;</kbd><kbd>&rarr;</kbd> nav &nbsp; <kbd>Space</kbd> flip</div>`;
+  if(mode==='quiz' && quizActive && quizIndex < quizDeck.length && !quizAnswered)
+    return `<div class="kb-hints"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> answer</div>`;
+  return '';
+}
+
+// ═══════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════
+function bindEvents(){
+  // Nav
+  document.querySelectorAll('.nav button').forEach(btn => {
+    btn.addEventListener('click', () => { mode = btn.dataset.mode; fcFlipped = false; render(); });
+  });
+  // Review cards
+  document.querySelectorAll('.card-head').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.card;
+      openCards[id] = !openCards[id];
+      render();
+    });
+  });
+  // Flashcards
+  const flipEl = document.getElementById('fc-flip');
+  if(flipEl) flipEl.addEventListener('click', flipCard);
+  const prevBtn = document.getElementById('fc-prev');
+  const nextBtn = document.getElementById('fc-next');
+  const shuffleBtn = document.getElementById('fc-shuffle');
+  if(prevBtn) prevBtn.addEventListener('click', () => { fcFlipped=false; const deck=getFilteredDeck(); fcIndex=Math.max(0,fcIndex-1); render(); });
+  if(nextBtn) nextBtn.addEventListener('click', () => { fcFlipped=false; const deck=getFilteredDeck(); fcIndex=Math.min(deck.length-1,fcIndex+1); render(); });
+  if(shuffleBtn) shuffleBtn.addEventListener('click', () => { shuffleArray(fcDeck); fcIndex=0; fcFlipped=false; render(); });
+  document.querySelectorAll('.fc-filter button').forEach(btn => {
+    btn.addEventListener('click', () => { fcFilter=btn.dataset.era; fcIndex=0; fcFlipped=false; render(); });
+  });
+  // Quiz
+  const startBtn = document.getElementById('quiz-start');
+  if(startBtn) startBtn.addEventListener('click', startQuiz);
+  const restartBtn = document.getElementById('quiz-restart');
+  if(restartBtn) restartBtn.addEventListener('click', startQuiz);
+  document.querySelectorAll('.quiz-opt:not(.locked)').forEach(btn => {
+    btn.addEventListener('click', () => answerQuiz(parseInt(btn.dataset.qi)));
+  });
+  const nextQ = document.getElementById('quiz-next-btn');
+  if(nextQ) nextQ.addEventListener('click', () => { quizIndex++; quizAnswered=false; render(); });
+}
+
+function flipCard(){
+  fcFlipped = !fcFlipped;
+  if(fcFlipped){ stats.cardsFlipped++; saveStats(); }
+  render();
+}
+
+function getFilteredDeck(){
+  return fcFilter==='All' ? fcDeck : fcDeck.filter(c=>c.era===fcFilter);
+}
+
+function startQuiz(){
+  quizDeck = shuffleArray([...QUIZ]).slice(0, 25);
+  quizDeck.forEach(q => {
+    const indices = q.opts.map((_,i)=>i);
+    shuffleArray(indices);
+    q.shuffledOpts = indices.map(i=>q.opts[i]);
+    q.correctShuffled = indices.indexOf(q.ans);
+  });
+  quizIndex=0; quizScore=0; quizAnswered=false; quizActive=true; quizWrong=[];
+  render();
+}
+
+function answerQuiz(idx){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizDeck[quizIndex];
+  q.userAnswer = idx;
+  if(idx === q.correctShuffled){
+    quizScore++;
+  } else {
+    quizWrong.push({ q:q.q, yours:q.shuffledOpts[idx], correct:q.shuffledOpts[q.correctShuffled] });
+  }
+  render();
+}
+
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+// ═══════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if(mode==='flashcards'){
+    if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); flipCard(); }
+    if(e.code==='ArrowLeft'){ fcFlipped=false; const deck=getFilteredDeck(); fcIndex=Math.max(0,fcIndex-1); render(); }
+    if(e.code==='ArrowRight'){ fcFlipped=false; const deck=getFilteredDeck(); fcIndex=Math.min(deck.length-1,fcIndex+1); render(); }
+  }
+  if(mode==='quiz' && quizActive && !quizAnswered && quizIndex < quizDeck.length){
+    if(e.key==='1') answerQuiz(0);
+    if(e.key==='2') answerQuiz(1);
+    if(e.key==='3') answerQuiz(2);
+    if(e.key==='4') answerQuiz(3);
+  }
+  if(mode==='quiz' && quizAnswered && (e.code==='Enter'||e.code==='Space'||e.code==='ArrowRight')){
+    e.preventDefault(); quizIndex++; quizAnswered=false; render();
+  }
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
